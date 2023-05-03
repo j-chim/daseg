@@ -64,7 +64,12 @@ class TransformerModel:
         labels = ckpt['hyper_parameters']['labels']
         mname = ckpt['hyper_parameters']['model_name_or_path']
 
-        # Manually load the state dict
+        pl_model = DialogActTransformer(
+            labels=labels,
+            model_name_or_path=mname
+        )
+
+        # Manually load the state dict            
         pl_model.load_state_dict(ckpt['state_dict'])
 
         # Voila

@@ -100,6 +100,7 @@ class DialogActTransformer(pl.LightningModule):
 
         ret = {k: v for k, v in results.items()}
         ret["log"] = results
+        self.log('macro_f1', results["macro_f1"], prog_bar=True)
         return ret, preds_list, out_label_list
 
     def validation_epoch_end(self, outputs):
