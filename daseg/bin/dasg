@@ -194,25 +194,28 @@ def train_transformer(
     )
     model.set_output_dir(exp_dir)
     trainer = pl.Trainer(
+        accelerator="gpu",
         gradient_clip_val=1.0,
         default_root_dir=str(exp_dir),
-        gpus=num_gpus,
+        devices=num_gpus,
         deterministic=True,
-        checkpoint_callback=ModelCheckpoint(
-            filepath=str(exp_dir),
-            prefix='checkpoint',
-            verbose=True,
-            monitor='macro_f1',
-            mode='max',
-            save_top_k=True
-        ),
+        callbacks=[
+            ModelCheckpoint(
+                dirpath=str(exp_dir),
+                filename='checkpoint-{epoch}',
+                verbose=True,
+                monitor='macro_f1',
+                mode='max',
+                save_top_k=True
+            ),
+        ],
         max_epochs=epochs,
         accumulate_grad_batches=gradient_accumulation_steps,
         precision=16 if fp16 else 32,
     )
     trainer.fit(
         model=model,
-        train_dataloader=loaders['train'],
+        train_dataloaders=loaders['train'],
         val_dataloaders=loaders['dev']
     )
     trainer.test(
@@ -279,21 +282,25 @@ def train_bigru(
             'train'].dataset.corpus.joint_coding_dialog_act_label_frequencies if frequency_weighted else None
     )
     trainer = pl.Trainer(
+        accelerator="gpu",
         gradient_clip_val=0.5,  # note: not necessarily the right method of gradient clipping
         default_root_dir=output_dir,
-        gpus=num_gpus,
+        devices=num_gpus,
         deterministic=True,
-        checkpoint_callback=ModelCheckpoint(
-            filepath=output_dir,
-            verbose=True,
-            monitor='macro_f1',
-            mode='max'
-        ),
+        callbacks=[
+            ModelCheckpoint(
+                dirpath=output_dir,
+                filename='checkpoint-{epoch}',
+                verbose=True,
+                monitor='macro_f1',
+                mode='max'
+            )
+        ],
         max_epochs=epochs
     )
     trainer.fit(
         model=model,
-        train_dataloader=loaders['train'],
+        train_dataloaders=loaders['train'],
         val_dataloaders=loaders['dev']
     )
     trainer.test(
