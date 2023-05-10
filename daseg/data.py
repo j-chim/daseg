@@ -9,6 +9,7 @@ from itertools import chain, groupby
 from pathlib import Path
 from typing import Callable, Dict, FrozenSet, Iterable, List, Mapping, NamedTuple, Optional, Set, Tuple
 
+from pathlib import Path
 from cytoolz.itertoolz import sliding_window
 from more_itertools import flatten
 from spacy import displacy
@@ -20,6 +21,7 @@ from daseg.resources import COLORMAP, MRDA_BASIC_DIALOG_ACTS, MRDA_FULL_DIALOG_A
     SEGMENTATION_ONLY_ACTS, SEGMENT_TAG, SWDA_BUGGY_DIALOG_ACTS, SWDA_TAG_TO_DIALOG_ACT, get_nlp, \
     to_buggy_swda_42_labels
 from daseg.splits import SWDA_SPLITS
+
 
 __all__ = ['FunctionalSegment', 'Call', 'DialogActCorpus']
 
@@ -631,7 +633,8 @@ def lookup_or_fix(tag: str, dialog_acts: Mapping[str, str]) -> str:
 
 
 def decode_swda_id(transcript) -> str:
-    return f"sw{transcript.swda_filename.split('_')[2].split('.')[0]}"
+    swda_filename = Path(transcript.swda_filename).name
+    return f"sw{swda_filename.split('_')[2].split('.')[0]}"
 
 
 def to_transformers_ner_dataset(
