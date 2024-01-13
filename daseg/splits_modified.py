@@ -135,7 +135,7 @@ assert not (set(valid_set_idx_10) & set(test_set_idx_10))
 SWDA_SPLITS_10 = {
     'train': train_set_idx_10,
     'dev': valid_set_idx_10,
-    'test': test_set_idx_10
+    'test': test_set_idx
 }
 
 
@@ -147,5 +147,5 @@ assert not (set(valid_set_idx_50) & set(test_set_idx_50))
 SWDA_SPLITS_50 = {
     'train': train_set_idx_50,
     'dev': valid_set_idx_50,
-    'test': test_set_idx_50
+    'test': test_set_idx
 }
