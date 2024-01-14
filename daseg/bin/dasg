@@ -162,6 +162,7 @@ def prepare_exp(
 @click.option('-g', '--num-gpus', default=0, type=int)
 @click.option('-f', '--fp16', is_flag=True)
 @click.option('-p', '--percentage', default=100, type=int)
+@click.option('-m', '--augmentation-file-path', default='', type=str)
 def train_transformer(
         exp_dir: Path,
         model_name_or_path: str,
@@ -172,17 +173,32 @@ def train_transformer(
         random_seed: int,
         num_gpus: int,
         fp16: bool,
-        percentage: int
+        percentage: int,
+        augmentation_file_path: str
 ):
     pl.seed_everything(random_seed)
     output_path = Path(exp_dir)
     with open(output_path / 'dataset.pkl', 'rb') as f:
         datasets: Dict[str, Dataset] = pickle.load(f)
     # note - "split" is deterministic
+    num_examples = round(len(datasets["train"]) * percentage / 100)
     datasets["train"] = torch.utils.data.dataset.Subset(
         datasets["train"], 
-        range(max(1, round(len(datasets["train"]) * percentage / 100)))
+        range(max(1, num_examples))
     )
+    if augmentation_file_path:
+        with open(output_path / augmentation_file_path, 'rb') as f:
+            aug_datasets: Dict[str, Dataset] = pickle.load(f)
+        # in future versions, add more flexible options
+        # for current simple experiments the following is used:
+        datasets["train"] = torch.utils.data.ConcatDataset([
+            datasets["train"], 
+            torch.utils.data.dataset.Subset(
+                aug_datasets["train"], 
+                range(max(1, num_examples))
+            )
+        ])
+
     with open(output_path / 'labels.pkl', 'rb') as f:
         labels: List[str] = pickle.load(f)
     model = DialogActTransformer(labels=labels, model_name_or_path=model_name_or_path)
