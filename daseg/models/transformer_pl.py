@@ -7,7 +7,8 @@ import pytorch_lightning as pl
 import torch
 from torch.nn.modules.loss import CrossEntropyLoss
 from torch.utils.data.dataloader import DataLoader
-from transformers import AdamW, AutoConfig, AutoModelForTokenClassification, AutoTokenizer, \
+from torch.optim import AdamW
+from transformers import AutoConfig, AutoModelForTokenClassification, AutoTokenizer, \
     MODEL_FOR_TOKEN_CLASSIFICATION_MAPPING, get_linear_schedule_with_warmup
 
 from daseg.data import NEW_TURN
