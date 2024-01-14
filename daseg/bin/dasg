@@ -161,6 +161,7 @@ def prepare_exp(
 @click.option('-r', '--random-seed', default=1050, type=int)
 @click.option('-g', '--num-gpus', default=0, type=int)
 @click.option('-f', '--fp16', is_flag=True)
+@click.option('-p', '--percentage', default=100, type=int)
 def train_transformer(
         exp_dir: Path,
         model_name_or_path: str,
@@ -170,12 +171,18 @@ def train_transformer(
         gradient_accumulation_steps: int,
         random_seed: int,
         num_gpus: int,
-        fp16: bool
+        fp16: bool,
+        percentage: int
 ):
     pl.seed_everything(random_seed)
     output_path = Path(exp_dir)
     with open(output_path / 'dataset.pkl', 'rb') as f:
         datasets: Dict[str, Dataset] = pickle.load(f)
+    # note - "split" is deterministic
+    datasets["train"] = torch.utils.data.dataset.Subset(
+        datasets["train"], 
+        range(max(1, round(len(datasets["train"]) * percentage / 100)))
+    )
     with open(output_path / 'labels.pkl', 'rb') as f:
         labels: List[str] = pickle.load(f)
     model = DialogActTransformer(labels=labels, model_name_or_path=model_name_or_path)
