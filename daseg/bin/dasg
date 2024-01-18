@@ -191,12 +191,16 @@ def train_transformer(
             aug_datasets: Dict[str, Dataset] = pickle.load(f)
         # in future versions, add more flexible options
         # for current simple experiments the following is used:
-        datasets["train"] = torch.utils.data.ConcatDataset([
-            datasets["train"], 
-            torch.utils.data.dataset.Subset(
+        if percentage < 100:
+            aug_train = torch.utils.data.dataset.Subset(
                 aug_datasets["train"], 
                 range(max(1, num_examples))
             )
+        else:
+            aug_train = aug_datasets["train"]
+        datasets["train"] = torch.utils.data.ConcatDataset([
+            datasets["train"], 
+            aug_train
         ])
 
     with open(output_path / 'labels.pkl', 'rb') as f:
